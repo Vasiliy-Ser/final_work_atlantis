@@ -1,0 +1,32 @@
+#cloud-config
+users:
+  - name: worker
+    groups: sudo
+    shell: /bin/bash
+    sudo: ["ALL=(ALL) NOPASSWD:ALL"]
+    ssh_authorized_keys:
+      ${vms_ssh_root_key}
+
+package_update: true
+package_upgrade: false
+
+packages:
+  - curl
+  - wget
+  - vim
+  - htop
+  - net-tools
+  - dnsutils
+  - ca-certificates
+  - openssh-client
+  - jq
+
+runcmd:
+  - mkdir -p /home/worker/.kube
+  - chown worker:worker /home/worker/.kube
+  - systemctl daemon-reload
+  - systemctl enable update-nginx-ingress.timer
+  - systemctl start update-nginx-ingress.timer
+
+
+

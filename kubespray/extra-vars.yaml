@@ -1,0 +1,3 @@
+"cloud_provider": "external"
+"external_cloud_provider": "manual"
+"kubeadm_enabled": true

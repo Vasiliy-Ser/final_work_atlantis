@@ -1,0 +1,26 @@
+#cloud-config
+users:
+  - name: master
+    groups: sudo
+    shell: /bin/bash
+    sudo: ['ALL=(ALL) NOPASSWD:ALL']
+    ssh_authorized_keys:
+      - "${vms_ssh_root_key}"
+
+package_update: true
+package_upgrade: false
+packages:
+  - vim
+  - snapd
+  - ca-certificates
+  - curl
+  - gnupg
+  - lsb-release
+
+
+
+runcmd:
+  - apt update -y
+  - apt install -y python3.9 python3.9-distutils python3.9-venv
+
+
