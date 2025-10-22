@@ -144,6 +144,17 @@ jobs:
           terraform refresh -no-color
           echo "✅ State refreshed"
         continue-on-error: true
+
+      - name: Identify Remaining Destructive Resource
+        working-directory: implementation
+        run: |
+          echo "🔍 Identifying the last destructive resource..."
+          terraform plan -no-color > plan_details.txt
+          echo "=== Resources to be destroyed ==="
+          grep "will be destroyed" plan_details.txt
+          echo "=== Full plan summary ==="
+          grep -A 2 -B 2 "destroy" plan_details.txt
+        continue-on-error: true
       
       - name: Force State Refresh
         working-directory: implementation
