@@ -104,7 +104,6 @@ resource "local_file" "installation_instructions" {
 # 🚀 Instructions for deploying a Kubernetes cluster
 
 ## 📦 Created resources
-- Service account: ${yandex_iam_service_account.k8s_ccm.name}
 - Bastion: ${local.bastion_public_ip}
 - Master: ${local.master_private_ip}
 - Workers: ${join(", ", local.all_workers_ips)}
