@@ -6,11 +6,13 @@ variable "zone" {
 }
 variable "bucket_name" { type = string }
 
-variable "sa_key_file" {
-  type        = string
-  description = "Path to service account JSON key file"
-  default     = "~/.authorized_key.json"
-}
+# variable "sa_key_file" {
+#   type        = string
+#   description = "Path to service account JSON key file"
+#   default     = "~/.authorized_key.json"
+# }
+
+variable "service_account_key_file" {}
 
 variable "sa_name" {
   type        = string
