@@ -4,88 +4,94 @@ on:
   push:
     branches:
       - main
+    paths:
+      - 'preliminary/**'
+      - 'implementation/**'
+      - '.github/workflows/terraform.yml'
 
 env:
-  TF_WORKSPACE: default
+  YC_SERVICE_ACCOUNT_KEY_FILE: ${{ github.workspace }}/key.json
+  YC_CLOUD_ID: ${{ secrets.CLOUD_ID }}
+  YC_FOLDER_ID: ${{ secrets.FOLDER_ID }}
+  YC_BUCKET_NAME: ${{ secrets.YC_BUCKET_NAME }}
+  YC_KEY_JSON: ${{ secrets.YC_KEY_JSON }}
 
 jobs:
   terraform-preliminary:
-    name: Terraform Preliminary
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.7.0
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.7.0
 
-    - name: Setup Python for YC CLI
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Setup Python for YC CLI
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
-    - name: Install Yandex Cloud SDK
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install yandexcloud
+      - name: Install YC CLI
+        run: pip install yandexcloud
 
-    - name: Configure YC credentials
-      run: |
-        mkdir -p ~/.config/yandex-cloud/
-        echo "${{ secrets.YC_CREDENTIALS_JSON }}" > ~/.config/yandex-cloud/sa-key.json
-        export YC_SERVICE_ACCOUNT_KEY_FILE=~/.config/yandex-cloud/sa-key.json
+      - name: Write YC key file
+        run: echo '${{ secrets.YC_KEY_JSON }}' > $YC_SERVICE_ACCOUNT_KEY_FILE
 
-    - name: Terraform Init (Preliminary)
-      working-directory: terraform/preliminary
-      run: terraform init -backend-config="key=preliminary/terraform.tfstate" -input=false
+      - name: Terraform Init
+        run: terraform init
+        working-directory: preliminary
 
-    - name: Terraform Plan (Preliminary)
-      working-directory: terraform/preliminary
-      run: terraform plan -out=tfplan -input=false
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: preliminary
 
-    - name: Terraform Apply (Preliminary)
-      working-directory: terraform/preliminary
-      run: terraform apply -auto-approve tfplan
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        working-directory: preliminary
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
+        working-directory: preliminary
 
   terraform-implementation:
-    name: Terraform Implementation
     runs-on: ubuntu-latest
     needs: terraform-preliminary
     steps:
-    - name: Checkout repository
-      uses: actions/checkout@v3
+      - name: Checkout repository
+        uses: actions/checkout@v4
 
-    - name: Setup Terraform
-      uses: hashicorp/setup-terraform@v2
-      with:
-        terraform_version: 1.7.0
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.7.0
 
-    - name: Setup Python for YC CLI
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.11'
+      - name: Setup Python for YC CLI
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.x'
 
-    - name: Install Yandex Cloud SDK
-      run: |
-        python3 -m pip install --upgrade pip
-        python3 -m pip install yandexcloud
+      - name: Install YC CLI
+        run: pip install yandexcloud
 
-    - name: Configure YC credentials
-      run: |
-        mkdir -p ~/.config/yandex-cloud/
-        echo "${{ secrets.YC_CREDENTIALS_JSON }}" > ~/.config/yandex-cloud/sa-key.json
-        export YC_SERVICE_ACCOUNT_KEY_FILE=~/.config/yandex-cloud/sa-key.json
+      - name: Write YC key file
+        run: echo '${{ secrets.YC_KEY_JSON }}' > $YC_SERVICE_ACCOUNT_KEY_FILE
 
-    - name: Terraform Init (Implementation)
-      working-directory: terraform/implementation
-      run: terraform init -backend-config="key=implementation/terraform.tfstate" -input=false
+      - name: Terraform Init
+        run: terraform init
+        working-directory: implementation
 
-    - name: Terraform Plan (Implementation)
-      working-directory: terraform/implementation
-      run: terraform plan -out=tfplan -input=false
+      - name: Terraform Validate
+        run: terraform validate
+        working-directory: implementation
 
-    - name: Terraform Apply (Implementation)
-      working-directory: terraform/implementation
-      run: terraform apply -auto-approve tfplan
+      - name: Terraform Plan
+        run: terraform plan -out=tfplan
+        working-directory: implementation
+
+      - name: Terraform Apply
+        if: github.ref == 'refs/heads/main'
+        run: terraform apply -auto-approve tfplan
+        working-directory: implementation
