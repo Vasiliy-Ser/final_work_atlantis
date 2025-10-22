@@ -111,7 +111,7 @@ module "workers" {
 }
 
 data "template_file" "cloudinit-m" {
-  template = file("/home/vm30/homework/23/terraform/implementation/cloud-init-m.yml")
+  template = file("${path.module}/cloud-init-m.yml")
 
   vars = {
     vms_ssh_root_key = join("\n", var.vms_ssh_root_key)
@@ -119,7 +119,7 @@ data "template_file" "cloudinit-m" {
 }
 
 data "template_file" "cloudinit-w" {
-  template = file("/home/vm30/homework/23/terraform/implementation/cloud-init-w.yml")
+  template = file("${path.module}/cloud-init-w.yml")
 
   vars = {
     vms_ssh_root_key = join("\n", var.vms_ssh_root_key)
@@ -127,7 +127,7 @@ data "template_file" "cloudinit-w" {
 }
 
 data "template_file" "cloudinit-b" {
-  template = file("/home/vm30/homework/23/terraform/implementation/cloud-init-b.yml")
+  template = file("${path.module}/cloud-init-b.yml")
 
   vars = {
     vms_ssh_root_key = join("\n", var.vms_ssh_root_key)

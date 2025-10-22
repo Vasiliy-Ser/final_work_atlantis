@@ -200,3 +200,9 @@ variable "bucket_name" {
 variable "region_s3" {
   default = "ru-central1"
 }
+
+variable "service_account_key_file" {
+  description = "Path to Yandex Cloud service account key file"
+  type        = string
+  default     = ""
+}
