@@ -133,19 +133,20 @@ jobs:
         working-directory: implementation
         run: terraform plan -out=tfplan
 
-      - name: Prevent Destructive Changes
+      - name: Simple Destructive Changes Check
         working-directory: implementation
         run: |
           set -e
+    
           if [ ! -f tfplan ]; then
-            echo "tfplan file not found, skipping destructive check"
-            exit 0
+            echo "❌ tfplan file not found"
+            exit 1
           fi
-          if terraform show -json tfplan 2>/dev/null | jq -e '.resource_changes[]?.change.actions[]? | select(. == "delete")' > /dev/null; then
-            echo "ABORTING: Destructive changes detected!"
+          if terraform show tfplan | grep -E "(destroy|delete)" | grep -v "0 to destroy" | grep -v "0 to delete"; then
+            echo "🚨 ABORTING: Destructive changes detected in plan!"
             exit 1
           else
-            echo "No destructive changes detected"
+            echo "✅ No destructive changes detected"
           fi
       
       - name: Terraform Apply
