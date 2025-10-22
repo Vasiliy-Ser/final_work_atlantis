@@ -123,6 +123,20 @@ jobs:
           echo "✅ All problematic resources removed from state"
         continue-on-error: true
 
+      - name: Remove IAM Roles from State
+        working-directory: implementation
+        run: |
+          echo "🛡️ Removing IAM roles from state..."
+    
+          terraform state rm 'yandex_resourcemanager_folder_iam_member.ccm_roles["compute.images.user"]' || true
+          terraform state rm 'yandex_resourcemanager_folder_iam_member.ccm_roles["container-registry.images.pusher"]' || true
+          terraform state rm 'yandex_resourcemanager_folder_iam_member.ccm_roles["iam.serviceAccounts.user"]' || true
+          terraform state rm 'yandex_resourcemanager_folder_iam_member.ccm_roles["load-balancer.privateAdmin"]' || true
+          terraform state rm 'yandex_resourcemanager_folder_iam_member.ccm_roles["vpc.publicAdmin"]' || true
+    
+          echo "✅ IAM roles removed from state"
+        continue-on-error: true
+
       - name: Refresh State from Cloud
         working-directory: implementation
         run: |
