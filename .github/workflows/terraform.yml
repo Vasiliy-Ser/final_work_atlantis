@@ -112,6 +112,13 @@ jobs:
       - name: Terraform Init
         run: terraform init
         working-directory: implementation
+      
+      - name: Force State Refresh
+        working-directory: implementation
+        run: |
+          terraform refresh -no-color
+          echo "Resources in state: $(terraform state list | wc -l)"
+        continue-on-error: true
 
       - name: Terraform State List
         run: terraform state list || echo "⚠️ No state found or backend empty"
