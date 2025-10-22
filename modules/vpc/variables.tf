@@ -25,3 +25,9 @@ EOT
     public = bool
   }))
 }
+
+variable "enable_nat-2" {
+  description = "Create NAT Gateway and route table?"
+  type        = bool
+  default     = true
+}
