@@ -137,18 +137,15 @@ jobs:
         working-directory: implementation
         run: |
           set -e
-    # Проверяем, существует ли файл tfplan
           if [ ! -f tfplan ]; then
-            echo "⚠️ tfplan file not found, skipping destructive check"
+            echo "tfplan file not found, skipping destructive check"
             exit 0
           fi
-
-    # Преобразуем план в JSON и проверяем удаление ресурсов
           if terraform show -json tfplan 2>/dev/null | jq -e '.resource_changes[]?.change.actions[]? | select(. == "delete")' > /dev/null; then
-            echo "❌ ABORTING: Destructive changes detected!"
+            echo "ABORTING: Destructive changes detected!"
             exit 1
           else
-            echo "✅ No destructive changes detected"
+            echo "No destructive changes detected"
           fi
       
       - name: Terraform Apply
