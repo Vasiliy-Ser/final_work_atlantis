@@ -39,14 +39,6 @@ resource "yandex_resourcemanager_folder_iam_binding" "miracle_vpc" {
 
 resource "yandex_resourcemanager_folder_iam_binding" "miracle_storage" {
   folder_id = var.folder_id
-  role      = "storage.editor"
-  members   = [
-    "serviceAccount:${yandex_iam_service_account.miracle.id}"
-  ]
-}
-
-resource "yandex_resourcemanager_folder_iam_binding" "miracle_storage" {
-  folder_id = var.folder_id
   role      = "kms.editor"
   members   = [
     "serviceAccount:${yandex_iam_service_account.miracle.id}"
