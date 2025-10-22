@@ -38,6 +38,11 @@ jobs:
 
       - name: Write YC key file
         run: echo '${{ secrets.YC_KEY_JSON }}' > $YC_SERVICE_ACCOUNT_KEY_FILE
+      
+      - name: Debug working directory
+        run: |
+          echo "Current directory: $(pwd)"
+          ls -la
 
       - name: Terraform Init
         run: terraform init
