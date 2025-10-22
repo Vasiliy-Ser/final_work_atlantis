@@ -5,12 +5,14 @@ terraform {
     key           = "terraform.tfstate"   
     
     region        = "ru-central1"
-    access_key    = ""
-    secret_key    = ""
+    #access_key    = ""
+    #secret_key    = ""
     # kms_master_key_id = ""
     # sse_algorithm     = "aws:kms"
-    
-    endpoint = "https://storage.yandexcloud.net"
+
+    endpoints = {
+      s3 = "https://storage.yandexcloud.net"
+    }
     
     skip_region_validation      = true
     skip_credentials_validation = true
