@@ -25,7 +25,7 @@ resource "yandex_vpc_gateway" "nat_gateway" {
 }
 
 # Internet access route table
-resource "yandex_vpc_route_table" "nat_route" {
+resource "data.yandex_vpc_route_table" "nat_route" {
   count = var.enable_nat ? 1 : 0
 
   name       = "${var.name}-nat-route"
