@@ -1,0 +1,53 @@
+name: CI/CD App
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - 'Docker/**'
+      - 'k8s/**'
+  push:
+    tags:
+      - 'v*.*.*'
+    paths:
+      - 'Docker/**'
+      - 'k8s/**'
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Login to YC Container Registry
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.YC_CR_USERNAME }}
+          password: ${{ secrets.YC_CR_PASSWORD }}
+          registry: cr.yandex
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ./Docker
+          push: true
+          tags: |
+            cr.yandex/crp1j66508p9ph88ba19/my-app:latest
+            cr.yandex/crp1j66508p9ph88ba19/my-app:${{ github.ref_name }}
+
+      - name: Setup kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: 'latest'
+
+      - name: Configure kubeconfig
+        run: |
+          echo "${{ secrets.KUBECONFIG_DATA }}" | base64 --decode > kubeconfig
+          export KUBECONFIG=$PWD/kubeconfig
+
+      - name: Deploy to Kubernetes
+        run: |
+          kubectl apply -f k8s/
+          kubectl rollout status deployment/my-app

@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <base href="/app/">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>K8S App from Host Machine</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <img src="images/sm.png" alt="Application Logo" class="logo">
+            <h1>🚀 Деплой приложения с хостовой машины через YC!</h1>
+        </div>
+        
+        <div class="info-card">
+            <h3>📊 Архитектура развертывания:</h3>
+            <div class="architecture">
+                <img src="images/sm.png" alt="Deployment Architecture" class="architecture-img">
+            </div>
+            <ul>
+                <li>✅ Кластер: Kubernetes на ВМ</li>
+                <li>✅ Разработчик: Падеев В. С,</li>
+                <li>✅ Время: <span id="current-time"></span></li>
+                <li>✅ Хост: <span id="hostname"></span></li>
+                <li>✅ Pods: <span id="pod-count">3</span> реплики</li>
+            </ul>
+        </div>
+
+        <div class="gallery">
+            <h3>🖼 Демонстрация работы с статическими файлами:</h3>
+            <div class="image-grid">
+                <div class="image-item">
+                    <img src="images/sm2.jpg" alt="Application Image" class="demo-image">
+                    <p>Логотип приложения</p>
+                </div>
+                <div class="image-item">
+                    <img src="images/sm2.jpg" alt="Application Image" class="demo-image grayscale">
+                    <p>Черно-белая версия</p>
+                </div>
+                <div class="image-item">
+                    <img src="images/sm2.jpg" alt="Application Image" class="demo-image blur">
+                    <p>Размытая версия</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="actions">
+            <button onclick="showMessage()">🎯 Тестировать приложение</button>
+            <button onclick="refreshData()">🔄 Обновить данные</button>
+            <button onclick="showDeploymentInfo()">📋 Информация о деплое</button>
+        </div>
+
+        <div class="status-card" id="statusCard">
+            <h4>📈 Статус системы:</h4>
+            <div class="status-item">
+                <span class="status-label">Nginx:</span>
+                <span class="status-value running">✅ Работает</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Kubernetes:</span>
+                <span class="status-value running">✅ Подключен</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Статические файлы:</span>
+                <span class="status-value running">✅ Загружены</span>
+            </div>
+            <div class="status-item">
+                <span class="status-label">Картинка sm.png:</span>
+                <span class="status-value running">✅ Доступна</span>
+            </div>
+        </div>
+
+        <div class="image-info">
+            <h4>📁 Информация о картинке:</h4>
+            <div class="info-grid">
+                <div class="info-item">
+                    <strong>Имя файла:</strong> sm.png
+                </div>
+                <div class="info-item">
+                    <strong>Размер:</strong> <span id="image-size">Загрузка...</span>
+                </div>
+                <div class="info-item">
+                    <strong>Статус:</strong> <span id="image-status">Проверка...</span>
+                </div>
+            </div>
+        </div>
+    </div>
+    <script src="script.js"></script>
+</body>
+</html>
