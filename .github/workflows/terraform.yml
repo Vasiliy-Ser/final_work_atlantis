@@ -53,21 +53,21 @@ jobs:
         working-directory: preliminary
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
         working-directory: preliminary
-          env:
-            TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
-            TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
-            TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+        env:
+          TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
+          TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+        run: terraform plan -out=tfplan
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve tfplan
         working-directory: preliminary
-          env:
-            TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
-            TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
-            TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+        env:
+          TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
+          TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+        run: terraform apply -auto-approve tfplan
 
   terraform-implementation:
     runs-on: ubuntu-latest
@@ -101,18 +101,19 @@ jobs:
         working-directory: implementation
 
       - name: Terraform Plan
-        run: terraform plan -out=tfplan
         working-directory: implementation
-          env:
-            TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
-            TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
-            TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+        env:
+          TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
+          TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+        run: terraform plan -out=tfplan
 
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
-        run: terraform apply -auto-approve tfplan
         working-directory: implementation
-          env:
-            TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
-            TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
-            TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+        env:
+          TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
+          TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
+          TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+        run: terraform apply -auto-approve tfplan
+            
