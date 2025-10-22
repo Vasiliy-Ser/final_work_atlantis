@@ -145,15 +145,15 @@ jobs:
           echo "✅ State refreshed"
         continue-on-error: true
 
-      - name: Identify Remaining Destructive Resource
+      - name: Find and Remove Problematic Resource
         working-directory: implementation
         run: |
-          echo "🔍 Identifying the last destructive resource..."
-          terraform plan -no-color > plan_details.txt
-          echo "=== Resources to be destroyed ==="
-          grep "will be destroyed" plan_details.txt
-          echo "=== Full plan summary ==="
-          grep -A 2 -B 2 "destroy" plan_details.txt
+          echo "🔍 Finding destructive resource..."
+    
+          terraform plan -no-color
+    
+          echo "💡 Look at the plan above to see which resource will be destroyed"
+          echo "If it's safe (like IAM roles), we'll allow the apply"
         continue-on-error: true
       
       - name: Force State Refresh
