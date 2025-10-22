@@ -1,0 +1,76 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: atlantis
+  namespace: atlantis
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: atlantis
+  template:
+    metadata:
+      labels:
+        app: atlantis
+    spec:
+      containers:
+      - name: atlantis
+        image: runatlantis/atlantis:latest
+        args:
+          - server
+          - --port=4141
+          - --atlantis-url=http://84.252.128.120/atlantis
+          - --repo-allowlist=github.com/Vasiliy-Ser/final_work_atlantis.git
+          - --gh-user=atlantis-bot
+        ports:
+        - containerPort: 4141
+        env:
+        - name: ATLANTIS_GH_TOKEN
+          valueFrom:
+            secretKeyRef:
+              name: atlantis-git
+              key: vcs-token
+        - name: GOOGLE_CREDENTIALS
+          valueFrom:
+            secretKeyRef:
+              name: atlantis-yc
+              key: key.json
+        - name: ATLANTIS_TERRAFORM_VERSION
+          value: "1.7.0"
+#        - name: ATLANTIS_GH_WEBHOOK_SECRET
+#          value: "secret"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: atlantis
+  namespace: atlantis
+spec:
+  type: ClusterIP
+  selector:
+    app: atlantis
+  ports:
+    - name: http
+      port: 4141
+      targetPort: 4141
+---
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: atlantis
+  namespace: atlantis
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /$2
+spec:
+  ingressClassName: nginx
+  rules:
+  - http:
+      paths:
+      - path: /atlantis(/|$)(.*)
+        pathType: ImplementationSpecific
+        backend:
+          service:
+            name: atlantis
+            port:
+              number: 4141
