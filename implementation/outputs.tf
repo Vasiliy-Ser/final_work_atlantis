@@ -108,7 +108,7 @@ resource "local_file" "installation_instructions" {
 - Master: ${local.master_private_ip}
 - Workers: ${join(", ", local.all_workers_ips)}
 - MetalLB IP-пул: ${local.bastion_private_ip}/24
-- Ok v2
+- Ok v3
 
 ---
 
