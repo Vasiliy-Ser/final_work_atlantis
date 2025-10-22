@@ -113,6 +113,30 @@ jobs:
         run: terraform init
         working-directory: implementation
 
+      - name: Import existing route table
+        run: |
+          ROUTE_TABLE_ID=$(yc vpc route-table list --format=json | jq -r '.[] | select(.name == "project-nat-route") | .id')
+          if [ ! -z "$ROUTE_TABLE_ID" ]; then
+            echo "Importing route table: $ROUTE_TABLE_ID"
+            terraform import 'module.network.yandex_vpc_route_table.nat_route[0]' $ROUTE_TABLE_ID
+          else
+            echo "Route table not found, skipping import"
+          fi
+        working-directory: implementation
+        continue-on-error: true
+
+      - name: Import existing security group
+        run: |
+          SG_ID=$(yc vpc security-group list --format=json | jq -r '.[] | select(.name == "project-default-sg") | .id')
+          if [ ! -z "$SG_ID" ]; then
+            echo "Importing security group: $SG_ID"
+            terraform import 'module.network.yandex_vpc_security_group.default' $SG_ID
+          else
+            echo "Security group not found, skipping import"
+          fi
+        working-directory: implementation
+        continue-on-error: true
+
       - name: Terraform Validate
         run: terraform validate
         working-directory: implementation
