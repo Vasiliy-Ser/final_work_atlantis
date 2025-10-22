@@ -187,4 +187,16 @@ variable "vms_ssh_root_key" {
   default     = ["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIAhtxtFIozHeOb0eySiG2+bVeA2sWrLkwJxRyrxgpA1H vm30@vm30"]
 }
 
+variable "access_key_s3" {}
 
+variable "secret_key_s3" {}
+
+variable "kms_key_id" {}
+
+variable "bucket_name" {
+  default = "study.v3"
+}
+
+variable "region_s3" {
+  default = "ru-central1"
+}
