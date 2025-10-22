@@ -2,8 +2,8 @@ terraform {
 
   backend "s3" {
     bucket        = "study.v3"       
-    key           = "terraform.tfstate"   
-   # key           = "instance"
+    #key           = "terraform.tfstate"   
+    key           = "instance"
     region        = "ru-central1"
     #access_key    = ""
     #secret_key    = ""
