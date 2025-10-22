@@ -5,7 +5,7 @@ on:
     branches:
       - main
     paths:
-      - 'preliminary/**'
+#      - 'preliminary/**'
       - 'implementation/**'
       - '.github/workflows/terraform.yml'
 
@@ -17,57 +17,57 @@ env:
   YC_KEY_JSON: ${{ secrets.YC_KEY_JSON }}
 
 jobs:
-  terraform-preliminary:
-    runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
+  # terraform-preliminary:
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v4
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v2
-        with:
-          terraform_version: 1.7.0
+  #     - name: Setup Terraform
+  #       uses: hashicorp/setup-terraform@v2
+  #       with:
+  #         terraform_version: 1.7.0
 
-      - name: Setup Python for YC CLI
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.x'
+  #     - name: Setup Python for YC CLI
+  #       uses: actions/setup-python@v4
+  #       with:
+  #         python-version: '3.x'
 
-      - name: Install YC CLI
-        run: pip install yandexcloud
+  #     - name: Install YC CLI
+  #       run: pip install yandexcloud
 
-      - name: Write YC key file
-        run: echo '${{ secrets.YC_KEY_JSON }}' > $YC_SERVICE_ACCOUNT_KEY_FILE
+  #     - name: Write YC key file
+  #       run: echo '${{ secrets.YC_KEY_JSON }}' > $YC_SERVICE_ACCOUNT_KEY_FILE
       
-      - name: Debug working directory
-        run: |
-          echo "Current directory: $(pwd)"
-          ls -la
+  #     - name: Debug working directory
+  #       run: |
+  #         echo "Current directory: $(pwd)"
+  #         ls -la
 
-      - name: Terraform Init
-        run: terraform init
-        working-directory: preliminary
+  #     - name: Terraform Init
+  #       run: terraform init
+  #       working-directory: preliminary
 
-      - name: Terraform Validate
-        run: terraform validate
-        working-directory: preliminary
+  #     - name: Terraform Validate
+  #       run: terraform validate
+  #       working-directory: preliminary
 
-      - name: Terraform Plan
-        working-directory: preliminary
-        env:
-          TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
-          TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
-          TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
-        run: terraform plan -out=tfplan
+  #     - name: Terraform Plan
+  #       working-directory: preliminary
+  #       env:
+  #         TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
+  #         TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
+  #         TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+  #       run: terraform plan -out=tfplan
 
-      - name: Terraform Apply
-        if: github.ref == 'refs/heads/main'
-        working-directory: preliminary
-        env:
-          TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
-          TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
-          TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
-        run: terraform apply -auto-approve tfplan
+  #     - name: Terraform Apply
+  #       if: github.ref == 'refs/heads/main'
+  #       working-directory: preliminary
+  #       env:
+  #         TF_VAR_service_account_key_file: ${{ env.YC_SERVICE_ACCOUNT_KEY_FILE }}
+  #         TF_VAR_cloud_id: ${{ secrets.CLOUD_ID }}
+  #         TF_VAR_folder_id: ${{ secrets.FOLDER_ID }}
+  #       run: terraform apply -auto-approve tfplan
 
   terraform-implementation:
     runs-on: ubuntu-latest

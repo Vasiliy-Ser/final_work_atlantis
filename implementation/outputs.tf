@@ -82,32 +82,6 @@ EOT
 #####################################
 # Outputs
 #####################################
-output "registry_id" {
-  description = "ID of the created container registry"
-  value       = yandex_container_registry.my_registry.id
-}
-
-output "registry_name" {
-  description = "Name of the created container registry"
-  value       = yandex_container_registry.my_registry.name
-}
-
-output "service_account_id" {
-  description = "ID of the service account"
-  value       = yandex_iam_service_account.registry_miracle.id
-}
-
-output "access_key" {
-  description = "Static access key for service account"
-  value       = yandex_iam_service_account_static_access_key.sa_static_key.access_key
-  sensitive   = true
-}
-
-output "secret_key" {
-  description = "Secret key for service account"
-  value       = yandex_iam_service_account_static_access_key.sa_static_key.secret_key
-  sensitive   = true
-}
 
 output "kubespray_inventory" {
   value = local.kubespray_inventory
