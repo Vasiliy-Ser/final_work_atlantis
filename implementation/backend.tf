@@ -3,7 +3,7 @@ terraform {
   backend "s3" {
     bucket   = var.bucket_name        # имя бакета для state
     key      = "terraform.tfstate"   # путь к state
-    region   = var.region-s3
+    region   = var.region_s3
     endpoints = {
       s3 = "https://storage.yandexcloud.net"
     }
