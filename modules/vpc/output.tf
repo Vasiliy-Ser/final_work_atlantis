@@ -1,5 +1,5 @@
 output "network_id" {
-  value = data.yandex_vpc_network.project.id
+  value = yandex_vpc_network.project.id
 }
 
 output "subnet_ids" {
