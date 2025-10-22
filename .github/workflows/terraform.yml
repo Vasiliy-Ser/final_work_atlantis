@@ -150,10 +150,29 @@ jobs:
         run: |
           echo "🔍 Finding destructive resource..."
     
-          terraform plan -no-color
+          terraform plan -no-color -out=plan.tfplan
+          terraform show -json plan.tfplan > plan.json
     
-          echo "💡 Look at the plan above to see which resource will be destroyed"
-          echo "If it's safe (like IAM roles), we'll allow the apply"
+          echo "=== АНАЛИЗ ПЛАНА ==="
+    
+          DESTROY_RESOURCES=$(jq -r '.resource_changes[] | select(.change.actions[] == "delete") | .address' plan.json 2>/dev/null || echo "")
+    
+          if [ ! -z "$DESTROY_RESOURCES" ]; then
+            echo "🚨 Ресурсы для удаления:"
+            echo "$DESTROY_RESOURCES"
+      
+            PROBLEMATIC_RESOURCE=$(echo "$DESTROY_RESOURCES" | head -1)
+            echo "🎯 Основной проблемный ресурс: $PROBLEMATIC_RESOURCE"
+      
+            echo "📋 Детали ресурса:"
+            jq -r ".resource_changes[] | select(.address == \"$PROBLEMATIC_RESOURCE\") | .change" plan.json 2>/dev/null || echo "Не удалось получить детали"
+      
+            echo "🛡️ Удаляем $PROBLEMATIC_RESOURCE из state..."
+            terraform state rm "$PROBLEMATIC_RESOURCE"
+      
+          else
+            echo "✅ Деструктивных изменений не найдено"
+          fi
         continue-on-error: true
       
       - name: Force State Refresh
