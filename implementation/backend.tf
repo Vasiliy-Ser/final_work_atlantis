@@ -9,8 +9,8 @@ terraform {
     }
     access_key        = ""
     secret_key        = ""
-    kms_master_key_id = ""
-    sse_algorithm     = "aws:kms"
+    # kms_master_key_id = ""
+    # sse_algorithm     = "aws:kms"
   }
 }
 
