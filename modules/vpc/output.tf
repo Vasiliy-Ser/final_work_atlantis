@@ -1,12 +1,5 @@
-/*
 output "network_id" {
-  description = "network_id"
-  value = yandex_vpc_network.develop[*].id
-}
-*/
-
-output "network_id" {
-  value = yandex_vpc_network.project.id
+  value = data.yandex_vpc_network.project.id
 }
 
 output "subnet_ids" {
