@@ -1,7 +1,7 @@
 resource "yandex_vpc_security_group" "default" {
   name        = "${var.name}-default-sg"
   description = "Default security group for project"
-  network_id  = data.yandex_vpc_network.project.id
+  network_id  = yandex_vpc_network.project.id
 
   ingress {
     description    = "SSH"

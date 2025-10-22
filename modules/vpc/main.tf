@@ -8,13 +8,13 @@ terraform {
   required_version = ">=1.8.4"
 }
 
-# resource "yandex_vpc_network" "project" {
-#   name = var.name
-# }
-
-data "yandex_vpc_network" "project" {
-  name = var.name  
+resource "yandex_vpc_network" "project" {
+  name = var.name
 }
+
+# data "yandex_vpc_network" "project" {
+#   name = var.name  
+# }
 
 # NAT Gateway (optional)
 resource "yandex_vpc_gateway" "nat_gateway" {
@@ -29,7 +29,7 @@ resource "yandex_vpc_route_table" "nat_route" {
   count = var.enable_nat ? 1 : 0
 
   name       = "${var.name}-nat-route"
-  network_id = data.yandex_vpc_network.project.id
+  network_id = yandex_vpc_network.project.id
 
   static_route {
     destination_prefix = "0.0.0.0/0"
@@ -42,7 +42,7 @@ resource "yandex_vpc_subnet" "subnets" {
 
   name           = "${var.name}-${each.key}"
   zone           = each.value.zone
-  network_id     = data.yandex_vpc_network.project.id
+  network_id     = yandex_vpc_network.project.id
   v4_cidr_blocks = [each.value.cidr]
 
   # all subnets are connected to one route table
