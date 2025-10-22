@@ -4,7 +4,10 @@ variable "zone" {
   type = string
   default = "ru-central1-a"
 }
-variable "bucket_name" { type = string }
+variable "bucket_name" { 
+  type = string
+  default = "study.v3" 
+  }
 
 # variable "sa_key_file" {
 #   type        = string
