@@ -1,12 +1,13 @@
 terraform {
 
   backend "s3" {
-    bucket   = "study.v3"       
-    key      = "terraform.tfstate"   
-  #  region   = "ru-central1"
+    bucket            = "study.v3"       
+    key               = "terraform.tfstate"   
+
     endpoints = {
       s3 = "https://storage.yandexcloud.net"
     }
+    region            = "ru-central1"
     access_key        = ""
     secret_key        = ""
     # kms_master_key_id = ""
