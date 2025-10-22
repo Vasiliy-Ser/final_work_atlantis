@@ -140,6 +140,38 @@ jobs:
         working-directory: implementation
         run: terraform plan -out=tfplan
 
+      - name: Remove Problematic Resources from State
+          working-directory: implementation
+          run: |
+            set -e
+            echo "🛡️ Removing problematic resources from state to prevent destruction..."
+    
+            PROBLEMATIC_RESOURCES=(
+              "local_file.kubespray_extra_vars"
+              "yandex_container_registry.my_registry"
+              "yandex_container_registry_iam_binding.puller"
+              "yandex_container_registry_iam_binding.pusher"
+              "yandex_iam_service_account.k8s_ccm"
+              "yandex_iam_service_account.registry_miracle"
+              "yandex_iam_service_account_key.ccm_key"
+              "yandex_iam_service_account_static_access_key.sa_static_key"
+              'yandex_resourcemanager_folder_iam_member.ccm_roles["compute.images.user"]'
+              'yandex_resourcemanager_folder_iam_member.ccm_roles["container-registry.images.pusher"]'
+              'yandex_resourcemanager_folder_iam_member.ccm_roles["iam.serviceAccounts.user"]'
+              'yandex_resourcemanager_folder_iam_member.ccm_roles["load-balancer.privateAdmin"]'
+              'yandex_resourcemanager_folder_iam_member.ccm_roles["vpc.publicAdmin"]'
+            )
+    
+            for resource in "${PROBLEMATIC_RESOURCES[@]}"; do
+              if terraform state list | grep -q "$resource"; then
+                echo "Removing from state: $resource"
+                terraform state rm "$resource" || true
+              fi
+            done
+    
+            echo "✅ Problematic resources removed from state"
+          continue-on-error: true
+
       - name: Simple Destructive Changes Check
         working-directory: implementation
         run: |
