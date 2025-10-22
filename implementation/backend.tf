@@ -3,14 +3,19 @@ terraform {
   backend "s3" {
     bucket        = "study.v3"       
     key           = "terraform.tfstate"   
-
-    endpoints     =  "https://storage.yandexcloud.net"
     
     region        = "ru-central1"
     access_key    = ""
     secret_key    = ""
     # kms_master_key_id = ""
     # sse_algorithm     = "aws:kms"
+    
+    endpoint = "https://storage.yandexcloud.net"
+    
+    skip_region_validation      = true
+    skip_credentials_validation = true
+    skip_requesting_account_id  = true
+    skip_s3_checksum            = true
   }
 }
 
