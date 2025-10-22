@@ -121,10 +121,6 @@ jobs:
         run: terraform validate
         working-directory: implementation
 
-      - name: Terraform Plan
-        working-directory: implementation
-        run: terraform plan -out=tfplan
-      
       - name: Prevent Destructive Changes
         run: |
           if terraform show -json tfplan | jq -e '.resource_changes[] | select(.change.actions[] == "delete")' > /dev/null; then
@@ -133,6 +129,10 @@ jobs:
           fi
         working-directory: implementation
 
+      - name: Terraform Plan
+        working-directory: implementation
+        run: terraform plan -out=tfplan
+      
       - name: Terraform Apply
         if: github.ref == 'refs/heads/main'
         working-directory: implementation
