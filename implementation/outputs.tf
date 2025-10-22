@@ -116,4 +116,9 @@ resource "local_file" "installation_instructions" {
 ```bash
 ssh -i ~/.ssh/id_ed25519 worker@${local.bastion_public_ip}
 EOT
+
+    lifecycle {
+    ignore_changes = [content]
+  }
+
 }
