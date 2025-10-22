@@ -1,0 +1,91 @@
+name: Terraform CI/CD (Yandex Cloud)
+
+on:
+  push:
+    branches:
+      - main
+
+env:
+  TF_WORKSPACE: default
+
+jobs:
+  terraform-preliminary:
+    name: Terraform Preliminary
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.7.0
+
+    - name: Setup Python for YC CLI
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install Yandex Cloud SDK
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install yandexcloud
+
+    - name: Configure YC credentials
+      run: |
+        mkdir -p ~/.config/yandex-cloud/
+        echo "${{ secrets.YC_CREDENTIALS_JSON }}" > ~/.config/yandex-cloud/sa-key.json
+        export YC_SERVICE_ACCOUNT_KEY_FILE=~/.config/yandex-cloud/sa-key.json
+
+    - name: Terraform Init (Preliminary)
+      working-directory: terraform/preliminary
+      run: terraform init -backend-config="key=preliminary/terraform.tfstate" -input=false
+
+    - name: Terraform Plan (Preliminary)
+      working-directory: terraform/preliminary
+      run: terraform plan -out=tfplan -input=false
+
+    - name: Terraform Apply (Preliminary)
+      working-directory: terraform/preliminary
+      run: terraform apply -auto-approve tfplan
+
+  terraform-implementation:
+    name: Terraform Implementation
+    runs-on: ubuntu-latest
+    needs: terraform-preliminary
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v3
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@v2
+      with:
+        terraform_version: 1.7.0
+
+    - name: Setup Python for YC CLI
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+
+    - name: Install Yandex Cloud SDK
+      run: |
+        python3 -m pip install --upgrade pip
+        python3 -m pip install yandexcloud
+
+    - name: Configure YC credentials
+      run: |
+        mkdir -p ~/.config/yandex-cloud/
+        echo "${{ secrets.YC_CREDENTIALS_JSON }}" > ~/.config/yandex-cloud/sa-key.json
+        export YC_SERVICE_ACCOUNT_KEY_FILE=~/.config/yandex-cloud/sa-key.json
+
+    - name: Terraform Init (Implementation)
+      working-directory: terraform/implementation
+      run: terraform init -backend-config="key=implementation/terraform.tfstate" -input=false
+
+    - name: Terraform Plan (Implementation)
+      working-directory: terraform/implementation
+      run: terraform plan -out=tfplan -input=false
+
+    - name: Terraform Apply (Implementation)
+      working-directory: terraform/implementation
+      run: terraform apply -auto-approve tfplan

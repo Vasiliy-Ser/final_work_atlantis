@@ -21,6 +21,38 @@ resource "yandex_iam_service_account" "miracle" {
   folder_id   = var.folder_id
 }
 
+resource "yandex_resourcemanager_folder_iam_binding" "miracle_compute" {
+  folder_id = var.folder_id
+  role      = "compute.editor"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.miracle.id}"
+  ]
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "miracle_vpc" {
+  folder_id = var.folder_id
+  role      = "vpc.editor"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.miracle.id}"
+  ]
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "miracle_storage" {
+  folder_id = var.folder_id
+  role      = "storage.editor"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.miracle.id}"
+  ]
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "miracle_storage" {
+  folder_id = var.folder_id
+  role      = "kms.editor"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.miracle.id}"
+  ]
+}
+
 # --- KMS key ---
 resource "yandex_kms_symmetric_key" "tfstate_key" {
   name              = "tfstate-kms-key"
