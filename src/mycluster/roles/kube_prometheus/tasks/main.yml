@@ -1,0 +1,40 @@
+- name: Remove old kube-prometheus if exists
+  file:
+    path: "{{ kp_dest }}"
+    state: absent
+
+- name: Clone kube-prometheus repo
+  git:
+    repo: "{{ kp_repo }}"
+    dest: "{{ kp_dest }}"
+    version: "{{ kp_branch }}"
+    update: yes
+
+- name: Apply CRDs (kube-prometheus setup)
+  shell: kubectl apply --server-side -f {{ kp_dest }}/manifests/setup --kubeconfig={{ kubeconfig_path }}
+  register: crd_apply
+  changed_when: "'created' in crd_apply.stdout or 'configured' in crd_apply.stdout"
+
+- name: Wait for CRDs to be established
+  shell: |
+    for crd in alertmanagers.monitoring.coreos.com prometheuses.monitoring.coreos.com servicemonitors.monitoring.coreos.com prometheusrules.monitoring.coreos.com; do
+      kubectl wait --for=condition=Established crd/$crd --timeout=120s --kubeconfig={{ kubeconfig_path }} || exit 1
+    done
+  retries: 5
+  delay: 10
+  register: crd_wait
+  until: crd_wait.rc == 0
+
+- name: Apply kube-prometheus manifests
+  shell: kubectl apply --server-side -f {{ kp_dest }}/manifests --kubeconfig={{ kubeconfig_path }}
+  register: kp_apply
+  changed_when: "'created' in kp_apply.stdout or 'configured' in kp_apply.stdout"
+
+- name: Wait for monitoring namespace and pods to be ready
+  shell: |
+    kubectl --kubeconfig={{ kubeconfig_path }} get ns monitoring -o name
+    kubectl --kubeconfig={{ kubeconfig_path }} -n monitoring wait --for=condition=Ready pod --all --timeout=600s
+  retries: 10
+  delay: 10
+  register: ns_pods_ready
+  until: ns_pods_ready.rc == 0

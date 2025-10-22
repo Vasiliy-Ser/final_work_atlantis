@@ -1,0 +1,13 @@
+# MySQL connection defaults for Grafana
+grafana_mysql_namespace: monitoring
+grafana_mysql_secret_name: grafana-mysql-secret
+
+grafana_mysql_database: grafana
+grafana_mysql_user: grafana
+grafana_mysql_password: grafana123
+
+grafana_mysql_image: mysql:8.0
+grafana_mysql_replicas: 1
+
+grafana_mysql_service_name: grafana-mysql
+grafana_mysql_port: 3306

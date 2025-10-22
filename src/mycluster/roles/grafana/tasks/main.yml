@@ -1,0 +1,188 @@
+---
+- name: Ensure Python Kubernetes client is installed
+  become: yes
+  pip:
+    name:
+      - kubernetes
+      - openshift
+    executable: pip3
+
+# 1. Creating a secret with MySQL credentials
+- name: Create Grafana MySQL secret
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Secret
+      metadata:
+        name: "{{ grafana_mysql_secret_name }}"
+        namespace: "{{ grafana_mysql_namespace }}"
+      type: Opaque
+      stringData:
+        mysql-database: "{{ grafana_mysql_database }}"
+        mysql-user: "{{ grafana_mysql_user }}"
+        mysql-password: "{{ grafana_mysql_password }}"
+
+# 2. We are unfolding MySQL Deployment + Service
+- name: Deploy MySQL for Grafana
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: "{{ grafana_mysql_service_name }}"
+        namespace: "{{ grafana_mysql_namespace }}"
+      spec:
+        replicas: "{{ grafana_mysql_replicas }}"
+        selector:
+          matchLabels:
+            app: "{{ grafana_mysql_service_name }}"
+        template:
+          metadata:
+            labels:
+              app: "{{ grafana_mysql_service_name }}"
+          spec:
+            containers:
+              - name: mysql
+                image: "{{ grafana_mysql_image }}"
+                env:
+                  - name: MYSQL_ROOT_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: "{{ grafana_mysql_secret_name }}"
+                        key: mysql-password
+                  - name: MYSQL_DATABASE
+                    valueFrom:
+                      secretKeyRef:
+                        name: "{{ grafana_mysql_secret_name }}"
+                        key: mysql-database
+                  - name: MYSQL_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: "{{ grafana_mysql_secret_name }}"
+                        key: mysql-user
+                  - name: MYSQL_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: "{{ grafana_mysql_secret_name }}"
+                        key: mysql-password
+                ports:
+                  - containerPort: "{{ grafana_mysql_port }}"
+                    name: mysql
+
+- name: Create MySQL service for Grafana
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Service
+      metadata:
+        name: "{{ grafana_mysql_service_name }}"
+        namespace: "{{ grafana_mysql_namespace }}"
+      spec:
+        selector:
+          app: "{{ grafana_mysql_service_name }}"
+        ports:
+          - port: "{{ grafana_mysql_port }}"
+            targetPort: "{{ grafana_mysql_port }}"
+
+# 3. Patch Grafana Deployment
+- name: Patch Grafana deployment to use MySQL
+  kubernetes.core.k8s:
+    state: patched
+    definition:
+      apiVersion: apps/v1
+      kind: Deployment
+      metadata:
+        name: grafana
+        namespace: "{{ grafana_mysql_namespace }}"
+      spec:
+        template:
+          spec:
+            containers:
+              - name: grafana
+                env:
+                  - name: GF_DATABASE_TYPE
+                    value: mysql
+                  - name: GF_DATABASE_HOST
+                    value: "{{ grafana_mysql_service_name }}.{{ grafana_mysql_namespace }}.svc.cluster.local:{{ grafana_mysql_port }}"
+                  - name: GF_DATABASE_NAME
+                    valueFrom:
+                      secretKeyRef:
+                        name: "{{ grafana_mysql_secret_name }}"
+                        key: mysql-database
+                  - name: GF_DATABASE_USER
+                    valueFrom:
+                      secretKeyRef:
+                        name: "{{ grafana_mysql_secret_name }}"
+                        key: mysql-user
+                  - name: GF_DATABASE_PASSWORD
+                    valueFrom:
+                      secretKeyRef:
+                        name: "{{ grafana_mysql_secret_name }}"
+                        key: mysql-password
+                  - name: GF_SERVER_ROOT_URL
+                    value: "http://{{ hostvars['bastion']['ansible_host'] }}/"
+                  - name: GF_APP_URL
+                    value: "http://{{ hostvars['bastion']['ansible_host'] }}/"
+                  - name: GF_SERVER_SERVE_FROM_SUB_PATH 
+                    value: "false"
+                  - name: GF_SECURITY_ADMIN_USER
+                    value: "admin"
+                  - name: GF_SECURITY_ADMIN_PASSWORD
+                    value: "admin"
+                readinessProbe:
+                  httpGet:
+                    path: /api/health
+                    port: 3000
+                  initialDelaySeconds: 60
+                  periodSeconds: 10
+                  timeoutSeconds: 5
+                  failureThreshold: 10
+  notify: Restart Grafana deployment
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+# - name: Ensure Python Kubernetes client is installed on remote node
+#   become: yes
+#   pip:
+#     name:
+#       - kubernetes
+#       - openshift
+#     executable: pip3
+
+# - name: Set Grafana base URL from bastion host
+#   set_fact:
+#     grafana_base_url: "http://{{ hostvars[groups['bastion'][0]].ansible_host }}/grafana"
+
+# - name: Patch Grafana deployment to serve from bastion URL
+#   kubernetes.core.k8s:
+#     state: present
+#     definition:
+#       apiVersion: apps/v1
+#       kind: Deployment
+#       metadata:
+#         name: grafana
+#         namespace: monitoring
+#       spec:
+#         template:
+#           spec:
+#             containers:
+#             - name: grafana
+#               env:
+#               - name: GF_SERVER_ROOT_URL
+#                 value: "%(protocol)s://%(domain)s/grafana/"
+#               - name: GF_SERVER_SERVE_FROM_SUB_PATH
+#                 value: "true"

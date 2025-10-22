@@ -1,0 +1,13 @@
+- name: Ensure base packages are installed
+  apt:
+    name:
+      - git
+      - curl
+      - lsb-release
+      - apt-transport-https
+      - ca-certificates
+      - python3-pip
+      - python3-setuptools
+      - python3-venv
+    update_cache: yes
+    state: present

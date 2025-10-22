@@ -1,0 +1,13 @@
+---
+- name: Restart Grafana deployment
+  ansible.builtin.command: >
+    kubectl rollout restart deployment grafana -n {{ grafana_mysql_namespace }}
+  register: restart_result
+  changed_when: "'restarted' in restart_result.stdout or restart_result.rc == 0"
+
+- name: Wait for Grafana rollout to complete
+  ansible.builtin.command: >
+    kubectl rollout status deployment grafana -n {{ grafana_mysql_namespace }} --timeout=300s
+  register: rollout_status
+  changed_when: false
+  failed_when: "'successfully rolled out' not in rollout_status.stdout"

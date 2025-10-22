@@ -1,0 +1,71 @@
+---
+- name: Setup Kubernetes Ingress for App and Grafana
+  hosts: kube_control_plane[0]
+  gather_facts: no
+  vars:
+    namespace_app: default
+    namespace_monitoring: monitoring
+    ingress_class: nginx
+    app_service_name: my-app
+    app_service_port: 80
+    grafana_service_name: grafana
+    grafana_service_port: 3000
+    alertmanager_service_name: alertmanager-main
+    alertmanager_service_port: 9093
+
+  tasks:
+
+    - name: Create Ingress for application
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: app-ingress
+            namespace: "{{ namespace_app }}"
+            annotations:
+              kubernetes.io/ingress.class: "{{ ingress_class }}"
+              nginx.ingress.kubernetes.io/rewrite-target: /$2
+          spec:
+            rules:
+            - http:
+                paths:
+                - path: /app(/|$)(.*)
+                  pathType: ImplementationSpecific
+                  backend:
+                    service:
+                      name: "{{ app_service_name }}"
+                      port:
+                        number: "{{ app_service_port }}"
+
+    - name: Create Ingress for monitoring (Grafana + Alertmanager)
+      kubernetes.core.k8s:
+        state: present
+        definition:
+          apiVersion: networking.k8s.io/v1
+          kind: Ingress
+          metadata:
+            name: monitoring-ingress
+            namespace: "{{ namespace_monitoring }}"
+            annotations:
+              kubernetes.io/ingress.class: "{{ ingress_class }}"
+              nginx.ingress.kubernetes.io/rewrite-target: /$2
+          spec:
+            rules:
+            - http:
+                paths:
+                - path: /grafana(/|$)(.*)
+                  pathType: ImplementationSpecific
+                  backend:
+                    service:
+                      name: "{{ grafana_service_name }}"
+                      port:
+                        number: "{{ grafana_service_port }}"
+                - path: /alertmanager(/|$)(.*)
+                  pathType: ImplementationSpecific
+                  backend:
+                    service:
+                      name: "{{ alertmanager_service_name }}"
+                      port:
+                        number: "{{ alertmanager_service_port }}"

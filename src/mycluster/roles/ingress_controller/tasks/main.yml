@@ -1,0 +1,29 @@
+- name: Ensure ingress-nginx namespace exists
+  kubernetes.core.k8s:
+    state: present
+    definition:
+      apiVersion: v1
+      kind: Namespace
+      metadata:
+        name: "{{ ingress_namespace }}"
+
+- name: Check if ingress-nginx controller is already deployed
+  command: kubectl -n ingress-nginx get deployment ingress-nginx-controller
+  register: ingress_check
+  failed_when: false
+  changed_when: false
+
+- name: Deploy ingress-nginx controller v1.3 if not installed
+  when: ingress_check.rc != 0
+  shell: |
+    kubectl apply -f {{ ingress_manifest_url }}
+  args:
+    executable: /bin/bash
+
+- name: Wait for ingress-nginx controller pods to be ready
+  shell: |
+    kubectl -n ingress-nginx wait --for=condition=Ready pod -l app.kubernetes.io/component=controller --timeout=600s
+  retries: 10
+  delay: 15
+  register: ingress_ready
+  until: ingress_ready.rc == 0

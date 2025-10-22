@@ -22,20 +22,4 @@ spec:
       imagePullSecrets:
         - name: asd
         
----
-# 🧩 Service (ClusterIP)
-apiVersion: v1
-kind: Service
-metadata:
-  name: my-app
-  namespace: default
-  labels:
-    app: my-app
-spec:
-  selector:
-    app: my-app
-  ports:
-    - port: 80
-      targetPort: 80
-      protocol: TCP
-  type: ClusterIP
+

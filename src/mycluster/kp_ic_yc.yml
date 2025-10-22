@@ -1,0 +1,18 @@
+- name: Deploy kube-prometheus stack on master node
+  hosts: kube_control_plane[0]
+  become: yes
+  gather_facts: yes
+
+  vars:
+    kubeconfig_path: /etc/kubernetes/admin.conf
+    kp_repo: "https://github.com/prometheus-operator/kube-prometheus.git"
+    kp_dest: "/opt/kube-prometheus"
+    kp_branch: "release-0.14"
+
+  roles:
+    - base_packages
+    - yc_cli
+    - kubectl
+    - kube_prometheus
+    - grafana
+    - ingress_controller

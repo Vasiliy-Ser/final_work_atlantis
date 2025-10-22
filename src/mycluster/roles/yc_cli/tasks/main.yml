@@ -1,0 +1,30 @@
+- name: Check if YC CLI is already installed
+  command: yc --version
+  register: yc_check
+  ignore_errors: yes
+  changed_when: false
+  failed_when: false
+
+- name: Download and install Yandex Cloud CLI
+  when: yc_check.rc != 0
+  block:
+    - name: Download and install YC CLI
+      shell: |
+        set -eux
+        curl -sSL https://storage.yandexcloud.net/yandexcloud-yc/install.sh | bash
+        mv ~/yandex-cloud/bin/yc /usr/local/bin/yc
+      args:
+        executable: /bin/bash
+
+    - name: Verify YC CLI installation
+      command: yc version
+      register: yc_version
+      changed_when: false
+
+    - debug:
+        msg: "✅ YC CLI successfully installed: {{ yc_version.stdout }}"
+
+- name: Confirm YC CLI version
+  when: yc_check.rc == 0
+  debug:
+    msg: "✅ YC CLI already installed: {{ yc_check.stdout | default('found') }}"
