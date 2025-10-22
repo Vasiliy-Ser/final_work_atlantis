@@ -29,9 +29,33 @@ resource "yandex_resourcemanager_folder_iam_binding" "miracle_compute" {
   ]
 }
 
+resource "yandex_resourcemanager_folder_iam_binding" "iam-user" {
+  folder_id = var.folder_id
+  role      = "iam.serviceAccounts.user"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.miracle.id}"
+  ]
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "iam-keyAdmin" {
+  folder_id = var.folder_id
+  role      = "iam.editor"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.miracle.id}"
+  ]
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "container-registry" {
+  folder_id = var.folder_id
+  role      = "container-registry.admin"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.miracle.id}"
+  ]
+}
+
 resource "yandex_resourcemanager_folder_iam_binding" "miracle_vpc" {
   folder_id = var.folder_id
-  role      = "vpc.editor"
+  role      = "vpc.admin"
   members   = [
     "serviceAccount:${yandex_iam_service_account.miracle.id}"
   ]
@@ -40,6 +64,30 @@ resource "yandex_resourcemanager_folder_iam_binding" "miracle_vpc" {
 resource "yandex_resourcemanager_folder_iam_binding" "miracle_storage" {
   folder_id = var.folder_id
   role      = "kms.editor"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.miracle.id}"
+  ]
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "puller" {
+  folder_id = var.folder_id
+  role      = "container-registry.images.puller"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.miracle.id}"
+  ]
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "pusher" {
+  folder_id = var.folder_id
+  role      = "ccontainer-registry.images.pusher"
+  members   = [
+    "serviceAccount:${yandex_iam_service_account.miracle.id}"
+  ]
+}
+
+resource "yandex_resourcemanager_folder_iam_binding" "miracle_editor" {
+  folder_id = var.folder_id
+  role      = "container-registry.editor"
   members   = [
     "serviceAccount:${yandex_iam_service_account.miracle.id}"
   ]
